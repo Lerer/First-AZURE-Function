@@ -1,4 +1,4 @@
-var veracode = require('../SharedModules/veracodeLogin.js');
+var wrapper = require('../SharedModules/veracodeWrapper.js');
 var version = process.version; // version === 'v6.5.0'
 
 module.exports =  async function (context, req) {
@@ -11,7 +11,7 @@ module.exports =  async function (context, req) {
         };
     }
     else { 
-        var header = veracode.generateHeader('host','path','GET');
+        var header = wrapper.specificRequest('getWorkspaces');
         context.res = {
             status: 400,
             body: version + '-' + header

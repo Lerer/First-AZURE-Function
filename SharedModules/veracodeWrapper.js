@@ -1,13 +1,23 @@
-var crypto = require('crypto');
+const crypto = require('crypto');
+const fetch = require('node-fetch');
+const localAuth = require('./accessProprtiesReader.js');
 
-const id = process.env.API_ID;
-const key = process.env.KEY;
+// const id = process.env.API_ID;
+// const key = process.env.KEY;
+
+const requests = {
+    getWorkspaces: {
+        path: '/v3/workspaces',
+        host: 'api.sourceclear.io',
+        method: 'GET'
+    }
+}
 
 const headerPreFix = "VERACODE-HMAC-SHA-256";
 const verStr = "vcode_request_version_1";
 
-var url = '/v3/workspaces'
-var host = 'api.veracode.com';
+//var url = '/v3/workspaces'
+//var host = 'api.veracode.com';
 
 var hmac256 = (data, key, format) => {
 	var hash = crypto.createHmac('sha256', key).update(data);
@@ -33,10 +43,37 @@ const getCredentials = () => {
     }
 }
 
-var generateHeader = (host, urlPpath, method) => {
+const specificRequest = (requestType) => {
+    let request = requests[requestType];
+    if (request !== undefined) {
+        const header = generateSpecificRequestHeader(requestType);
+        if (header!==undefined) {
+            const options = {
+                method: request.method,
+                headers: {Authorization:header}
+            }
+            const url = 'https://'+request.host+request.path;
+            fetch(url, options)
+                .then(res => {
+                    console.log(res);
+                    return res.json()})
+                .then(json => console.log(json))
+                .catch(err => console.log(err));
+        }
+    }
+}
 
-    const credentials = getCredentials(); 
+const generateSpecificRequestHeader = (requestType) => {
+    let request = requests[requestType];
+    if (request !== undefined) {
+        return generateHeader(request.host,request.path,request.method);
+    }
+} 
 
+const generateHeader = (host, urlPpath, method) => {
+    const credentials = localAuth.getLocalAuthorization();
+    //const credentials = getCredentials(); 
+    console.log(credentials);
     let id = credentials.API_ID;
     let key = credentials.KEY;
 
@@ -99,5 +136,7 @@ var performRequest = (hmacAuthToken,requestType,host, endpoint) => {
 };
 
 module.exports = {
-	generateHeader
+    generateHeader,
+    generateSpecificRequestHeader,
+    specificRequest
 }
