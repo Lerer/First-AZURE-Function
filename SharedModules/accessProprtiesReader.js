@@ -11,9 +11,9 @@ const getLocalAuthorization = (authProfile) => {
     let config = new configparser();
     config.read(veracodeCredsFile);
     let id = config.get(authProfile, 'veracode_api_key_id');
-    let key = config.get(authProfile, 'veracode_api_key_secret'); 
+    let secret = config.get(authProfile, 'veracode_api_key_secret'); 
 
-    return {API_ID:id,KEY:key};
+    return {API_ID:id,SECRET:secret};
 }
 
 module.exports = {getLocalAuthorization};

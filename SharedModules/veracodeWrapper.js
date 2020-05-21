@@ -72,11 +72,26 @@ const generateSpecificRequestHeader = async (context,requestType) => {
 
 const generateHeader = (context,host, urlPpath, method) => {
     context.log('generateHeader');
-    // Replace with your own profile
-    const credentials = localAuth.getLocalAuthorization('azure_api');
-    context.log(credentials);
-    let id = credentials.API_ID;
-    let key = credentials.KEY;
+
+    // for cloud deployment - these should be the credentials
+    let id = process.env.veracode_api_key_id;
+    let secret = process.env.veracode_api_key_secret;
+
+    // Replace with your own profile in local.settings.json for local debugging
+    if (id === undefined || id.length==0){
+        var authProfile = process.env.veracode_auth_profile;
+        if (authProfile !== undefined && authProfile.length>0) {
+            const credentials = localAuth.getLocalAuthorization(authProfile);
+            context.log(credentials);
+            id = credentials.API_ID;
+            secret = credentials.SECRET;
+        }
+    }
+
+    if (id === undefined || id.length==0){
+        context.log.error('No credentials provided');
+        return;
+    }
 
     var data = `id=${id}&host=${host}&url=${urlPpath}&method=${method}`;
     context.log('data: '+data);
@@ -84,7 +99,7 @@ const generateHeader = (context,host, urlPpath, method) => {
 	var nonce = crypto.randomBytes(16).toString("hex");
 
 	// calculate signature
-	var hashedNonce = hmac256(getByteArray(nonce), getByteArray(key));
+	var hashedNonce = hmac256(getByteArray(nonce), getByteArray(secret));
 	var hashedTimestamp = hmac256(timestamp, hashedNonce);
 	var hashedVerStr = hmac256(verStr, hashedTimestamp);
 	var signature = hmac256(data, hashedVerStr, 'hex');
