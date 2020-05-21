@@ -11,10 +11,12 @@ module.exports =  async function (context, req) {
         };
     }
     else { 
-        var header = wrapper.specificRequest('getWorkspaces');
+        var answer = await wrapper.specificRequest('getWorkspaces');
+        console.log('answer: '+answer);
+        //answer = {a:2}
         context.res = {
-            status: 400,
-            body: version + '-' + header
+            status: 200,
+            body: JSON.stringify(answer)
         };
     }
 };
