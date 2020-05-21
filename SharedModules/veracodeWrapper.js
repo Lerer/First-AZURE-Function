@@ -21,13 +21,13 @@ const requests = {
 const headerPreFix = "VERACODE-HMAC-SHA-256";
 const verStr = "vcode_request_version_1";
 
-var hmac256 = (data, key, format) => {
+const hmac256 = (data, key, format) => {
 	var hash = crypto.createHmac('sha256', key).update(data);
 	// no format = Buffer / byte array
 	return hash.digest(format);
 }
 
-var getByteArray = (hex) => {
+const getByteArray = (hex) => {
 	var bytes = [];
 
 	for(var i = 0; i < hex.length-1; i+=2){
@@ -42,7 +42,7 @@ const specificRequest = async (requestType) => {
     console.log('specificRequest');
     let request = requests[requestType];
     let res = {
-        'message': 'NOT FOUND'
+        message: 'No specific request found'
     };
     if (request !== undefined) {
         const header = await generateSpecificRequestHeader(requestType);
@@ -59,6 +59,8 @@ const specificRequest = async (requestType) => {
                     return res.json();
                 })
                 .catch(err => console.log(err));
+        } else {
+            res = {message: 'couldn\'t generate header'}
         }
     }
     return res;

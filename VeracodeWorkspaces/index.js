@@ -11,9 +11,9 @@ module.exports =  async function (context, req) {
         };
     }
     else { 
-        var answer = await wrapper.specificRequest('getWorkspaces');
-        console.log('answer: '+answer);
-        //answer = {a:2}
+        var answer = await wrapper.specificRequest();
+        context.log.info('answer: '+answer);
+
         context.res = {
             status: 200,
             body: JSON.stringify(answer)
