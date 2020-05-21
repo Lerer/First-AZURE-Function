@@ -11,7 +11,7 @@ module.exports =  async function (context, req) {
         };
     }
     else { 
-        var answer = await wrapper.specificRequest();
+        var answer = await wrapper.specificRequest(context);
         context.log.info('answer: '+answer);
 
         context.res = {

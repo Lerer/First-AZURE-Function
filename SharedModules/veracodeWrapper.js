@@ -38,14 +38,14 @@ const getByteArray = (hex) => {
 	return Int8Array.from(bytes);
 }
 
-const specificRequest = async (requestType) => {
-    console.log('specificRequest');
+const specificRequest = async (context,requestType) => {
+    context.log('specificRequest');
     let request = requests[requestType];
     let res = {
         message: 'No specific request found'
     };
     if (request !== undefined) {
-        const header = await generateSpecificRequestHeader(requestType);
+        const header = await generateSpecificRequestHeader(context,requestType);
         if (header!==undefined) {
             const options = {
                 method: request.method,
@@ -53,12 +53,8 @@ const specificRequest = async (requestType) => {
             }
             const url = 'https://'+request.host+request.path;
             res = await fetch(url, options)
-                .then(res => {
-                    //console.log('got response :\n'+res);
-                    //console.log(res.json());
-                    return res.json();
-                })
-                .catch(err => console.log(err));
+                .then(res => res.json())
+                .catch(err => context.log.error(err));
         } else {
             res = {message: 'couldn\'t generate header'}
         }
@@ -66,24 +62,24 @@ const specificRequest = async (requestType) => {
     return res;
 }
 
-const generateSpecificRequestHeader = async (requestType) => {
-    console.log('generateSpecificRequestHeader');
+const generateSpecificRequestHeader = async (context,requestType) => {
+    context.log('generateSpecificRequestHeader');
     let request = requests[requestType];
     if (request !== undefined) {
-        return generateHeader(request.host,request.path,request.method);
+        return generateHeader(context,request.host,request.path,request.method);
     }
 } 
 
-const generateHeader = (host, urlPpath, method) => {
-    console.log('generateHeader');
+const generateHeader = (context,host, urlPpath, method) => {
+    context.log('generateHeader');
+    // Replace with your own profile
     const credentials = localAuth.getLocalAuthorization('azure_api');
-    //const credentials = getCredentials(); 
-    console.log(credentials);
+    context.log(credentials);
     let id = credentials.API_ID;
     let key = credentials.KEY;
 
     var data = `id=${id}&host=${host}&url=${urlPpath}&method=${method}`;
-    console.log('data: '+data);
+    context.log('data: '+data);
 	var timestamp = (new Date().getTime()).toString();
 	var nonce = crypto.randomBytes(16).toString("hex");
 
