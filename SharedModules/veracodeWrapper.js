@@ -21,11 +21,16 @@ const requests = {
         path: '/srcclr/v3/workspaces/2a5d2d8e-fe51-4af7-bc31-b4eef4e96491/projects/d27cc383-2ba7-44bc-935f-c969d8e46ab1',
         host: 'api.veracode.com',
         method: 'GET'
+    },
+    getWorkspaceIssues: {
+        path: '/srcclr/v3/workspaces/2a5d2d8e-fe51-4af7-bc31-b4eef4e96491/issues',
+        host: 'api.veracode.com',
+        method: 'GET'
+       // ,queryParams: '?project_id=d27cc383-2ba7-44bc-935f-c969d8e46ab1'
     }
-
 }
 
-const specificRequest = async (context,requestType) => {
+const specificRequest = async (context,requestType,queryParams) => {
     context.log('specificRequest');
     let request = requests[requestType];
     let res = {
@@ -38,7 +43,9 @@ const specificRequest = async (context,requestType) => {
                 method: request.method,
                 headers: {Authorization:header}
             }
-            const url = 'https://'+request.host+request.path;
+            let query = request.queryParams || '';
+            const url = 'https://'+request.host+request.path+query;
+            context.log(url);
             res = await fetch(url, options)
                 .then(res => res.json())
                 .catch(err => context.log.error(err));

@@ -26,7 +26,7 @@ module.exports =  async function (context, req) {
         };
     }
     else { 
-        var answer = await wrapper.specificRequest(context,'getProjectDetails');
+        var answer = await wrapper.specificRequest(context,'getWorkspaceIssues',req.query);
         context.log.info('answer: '+answer);
 
         context.res = {
